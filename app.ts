@@ -6,7 +6,7 @@ dotenv.config();
 
 const app: Express = express();
 const hostname = process.env.HOSTNAME || 'localhost';
-const port = process.env.PORT || 3000;
+const port = process.env.PORT! || 3000;
 
 app.get("/", (req: Request, res: Response, next: NextFunction) => {
     res.json({ message: "Home page." });

@@ -3,9 +3,10 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const uri: string = process.env.DB_CONN_STRING!;
+const dbName: string = process.env.DB_NAME || "sns";
 
 const connection = mongoose
-    .connect(uri)
+    .connect(uri+dbName)
     .then(() => {
         console.log("Database connected!");
     })
