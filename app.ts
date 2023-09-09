@@ -1,5 +1,6 @@
 import express, { Express, Request, Response, NextFunction } from 'express';
 import dotenv from 'dotenv';
+import connection from './db/dbConnection'
 
 dotenv.config();
 
@@ -11,6 +12,15 @@ app.get("/", (req: Request, res: Response, next: NextFunction) => {
     res.json({ message: "Home page." });
 });
 
-app.listen(port, () => {
-    console.log(`listening on port ${port}`);
-});
+async function startServer(): Promise<void> {
+    try {
+        await connection;
+        app.listen(port, () => {
+            console.log(`listening on port ${port}`);
+        });
+    } catch (err) {
+        console.log(err);
+     }
+}
+
+startServer();
