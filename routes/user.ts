@@ -7,4 +7,4 @@ export const userRouter = Router();
 userRouter.post('/register', register);
 userRouter.post('/login', login);
 userRouter.get('/:username', authorize, getProfile);
-userRouter.post('/update/:username', authorize, updateProfile);
+userRouter.put('/:username', authorize, updateProfile);
