@@ -1,6 +1,6 @@
 import { UserModel, PostModel, ImageModel } from '../models';
 import { Request, Response } from 'express';
-import { registerValidator, createToken, updateProfileValidator, postValidator } from '../middlewares';
+import { registerValidator, createToken, updateProfileValidator } from '../middlewares';
 import bcrypt from 'bcrypt';
 
 function passwordEncrypt(password: string) {
@@ -143,34 +143,6 @@ export async function updateProfile(req: Request, res: Response): Promise<any> {
         }
 
         return res.status(200).json(updatedUser);
-    } catch (err) {
-        console.log(err);
-    }
-}
-
-export async function createPost(req: Request, res: Response): Promise<any> {
-    const auth = req.user;
-    const { title, content } = req.body;
-
-    const validated = postValidator.validate({ title, content });
-    if (validated.error) {
-        return res.status(400).json(validated.error.details[0].message);
-    }
-
-    try {
-        const user = await UserModel.findOne({ username: auth.username });
-        if (!user) {
-            return res.status(404).json('Something went wrong');
-        }
-
-        const post = new PostModel({
-            userId: user._id,
-            title: title,
-            content: content
-        })
-
-        await post.save();
-        return res.status(201).json(post);
     } catch (err) {
         console.log(err);
     }

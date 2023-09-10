@@ -9,5 +9,3 @@ userRouter.post('/login', login);
 userRouter.get('/:username', authorize, getProfile);
 userRouter.post('/update/:username', authorize, updateProfile);
 userRouter.post('/post', authorize, createPost);
-
-// export default userRouter;

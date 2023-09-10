@@ -6,7 +6,7 @@ const schema = new Schema({
     email: { type: String, required: true },
     password: { type: String, required: true },
     avatar: { type: Schema.Types.ObjectId, ref: 'Image' }
-});
+}, { timestamps: true });
 
 type User = InferSchemaType<typeof schema>;
 

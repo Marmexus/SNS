@@ -1,1 +1,2 @@
-export { register, login, getProfile, updateProfile, createPost } from './user';
+export { register, login, getProfile, updateProfile } from './user';
+export { createPost } from './post';
