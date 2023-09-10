@@ -64,3 +64,16 @@ export async function login(req: Request, res: Response): Promise<any> {
 
     return res.status(200).json({ jwt: token, data: user });
 }
+
+export async function profile(req: Request, res: Response): Promise<any> {
+    const auth = req.user;
+    const { username } = req.params;
+
+    const user = await UserModel.findOne({ username });
+    if (!user) {
+        return res.status(404).json('User not found');
+    }
+
+    return res.status(200).json({ data: user });
+    // const 
+}

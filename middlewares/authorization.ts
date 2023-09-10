@@ -1,11 +1,17 @@
 import { Request, Response, NextFunction } from "express";
 import { verifyToken } from "./auth/jwt";
 
-interface UserRequest extends Request {
-    user?: any
-}
+// interface UserRequest extends Request {
+//     user?: any
+// }
 
-export function authorize(req: UserRequest, res: Response, next: NextFunction) {
+declare module "express-serve-static-core" {
+    interface Request {
+        user: any;
+    }
+ }
+
+export function authorize(req: Request, res: Response, next: NextFunction) {
     const token = req.headers["authorization"];
     if (!token) {
         return res.status(401).json({message: "Unauthorized"});
