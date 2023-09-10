@@ -1,7 +1,7 @@
 import express, { Express, Request, Response, NextFunction } from 'express';
 import bodyParser from 'body-parser';
 import dotenv from 'dotenv';
-import connection from './db/dbConnection'
+import { connection } from './db/dbConnection'
 import userRouter from './routes';
 
 dotenv.config();
@@ -18,8 +18,6 @@ app.get("/", (req: Request, res: Response, next: NextFunction) => {
     res.json({ message: "Home page." });
 });
 
-
-
 async function startServer(): Promise<void> {
     try {
         await connection;
@@ -28,7 +26,7 @@ async function startServer(): Promise<void> {
         });
     } catch (err) {
         console.log(err);
-     }
+    }
 }
 
 startServer();

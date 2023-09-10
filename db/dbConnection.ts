@@ -5,7 +5,7 @@ dotenv.config();
 const uri: string = process.env.DB_CONN_STRING!;
 const dbName: string = process.env.DB_NAME || "sns";
 
-const connection = mongoose
+export const connection = mongoose
     .connect(uri+dbName)
     .then(() => {
         console.log("Database connected!");
@@ -14,4 +14,4 @@ const connection = mongoose
         console.log(err);
     });
 
-export default connection;
+// export default connection;
