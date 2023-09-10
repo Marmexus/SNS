@@ -1,6 +1,6 @@
 import UserModel from '../models';
 import { Request, Response } from 'express';
-import { registerValidator } from '../middlewares';
+import { registerValidator, createToken } from '../middlewares';
 import bcrypt from 'bcrypt';
 
 function passwordEncrypt(password: string) {
@@ -16,25 +16,36 @@ export async function register(req: Request, res: Response): Promise<any> {
         return res.status(400).json(validated.error.details[0].message);
     }
 
-    const existedUsername = await UserModel.find({ username });
-    const existedEmail = await UserModel.find({ email });
-    if (existedUsername.length > 0 || existedEmail.length > 0) {
-        if (existedUsername.length > 0) {
-            return res.status(400).json('User existed');
-        } else {
-            return res.status(400).json('Email existed');
+    try {
+        const existedUsername = await UserModel.find({ username });
+        const existedEmail = await UserModel.find({ email });
+        if (existedUsername.length > 0 || existedEmail.length > 0) {
+            if (existedUsername.length > 0) {
+                return res.status(400).json('User existed');
+            } else {
+                return res.status(400).json('Email existed');
+            }
         }
+
+        const passwordEncrypted: string = await passwordEncrypt(password);
+
+        const user = new UserModel({
+            username,
+            name,
+            email,
+            password: passwordEncrypted
+        })
+
+        await user.save();
+
+        const token = await createToken(user.username, user.email);
+
+        return res.status(201).json({jwt: token, data: user});
+    } catch (err) {
+        console.log(err);
     }
+}
 
-    const passwordEncrypted: string = await passwordEncrypt(password);
-
-    const user = new UserModel({
-        username,
-        name,
-        email,
-        password: passwordEncrypted
-    })
-
-    await user.save();
-    return res.status(201).json(user);
+export async function login() {
+    
 }
