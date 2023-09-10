@@ -1,4 +1,4 @@
-import UserModel from '../models';
+import { UserModel, PostModel } from '../models';
 import { Request, Response } from 'express';
 import { registerValidator, createToken } from '../middlewares';
 import bcrypt from 'bcrypt';

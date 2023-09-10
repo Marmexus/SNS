@@ -1,3 +1,2 @@
-import { UserModel } from "./user";
-
-export default UserModel;
+export { PostModel } from './post';
+export { UserModel } from "./user";
