@@ -14,3 +14,8 @@ export const updateProfileValidator = Joi.object({
     email: Joi.string().email(),
     avatar: Joi.string().uri(),
 });
+
+export const postValidator = Joi.object({
+    title: Joi.string().min(3).max(100).required(),
+    content: Joi.string().min(3).max(1000).required(),
+});
