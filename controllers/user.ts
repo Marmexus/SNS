@@ -16,9 +16,14 @@ export async function register(req: Request, res: Response): Promise<any> {
         return res.status(400).json(validated.error.details[0].message);
     }
 
-    const existedUser = await UserModel.find({ username });
-    if (existedUser.length > 0) {
-        return res.status(400).json('User existed');
+    const existedUsername = await UserModel.find({ username });
+    const existedEmail = await UserModel.find({ email });
+    if (existedUsername.length > 0 || existedEmail.length > 0) {
+        if (existedUsername.length > 0) {
+            return res.status(400).json('User existed');
+        } else {
+            return res.status(400).json('Email existed');
+        }
     }
 
     const passwordEncrypted: string = await passwordEncrypt(password);
