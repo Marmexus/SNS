@@ -1,10 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { verifyToken } from "./auth/jwt";
 
-// interface UserRequest extends Request {
-//     user?: any
-// }
-
 declare module "express-serve-static-core" {
     interface Request {
         user: any;
