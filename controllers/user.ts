@@ -2,7 +2,6 @@ import { UserModel, PostModel } from '../models';
 import { Request, Response } from 'express';
 import { registerValidator, createToken, updateProfileValidator } from '../middlewares';
 import bcrypt from 'bcrypt';
-import { trusted } from 'mongoose';
 
 function passwordEncrypt(password: string) {
     const salt: number = 10;
@@ -26,6 +25,7 @@ export async function register(req: Request, res: Response): Promise<any> {
     }
 
     try {
+        // check existed user and email
         const existedUsername = await UserModel.find({ username: info.username });
         const existedEmail = await UserModel.find({ email: info.email });
         if (existedUsername.length > 0 || existedEmail.length > 0) {
@@ -58,69 +58,83 @@ export async function register(req: Request, res: Response): Promise<any> {
 export async function login(req: Request, res: Response): Promise<any> {
     const { email, password } = req.body;
 
-    const existedUser = await UserModel.find({ email });
-    if (existedUser.length === 0) {
-        return res.status(400).json('Invalid email or password');
+    try {
+        const existedUser = await UserModel.find({ email });
+        if (existedUser.length === 0) {
+            return res.status(400).json('Invalid email or password');
+        }
+
+        const user = existedUser[0];
+        const isMatch: boolean = await bcrypt.compareSync(password, user.password);
+        if (!isMatch) {
+            return res.status(400).json('Invalid email or password');
+        }
+
+        const token = await createToken(user.username, user.email);
+
+        return res.status(200).json({ jwt: token, data: user });
+    } catch (err) {
+        console.log(err);
     }
-
-    const user = existedUser[0];
-    const isMatch: boolean = await bcrypt.compareSync(password, user.password);
-    if (!isMatch) {
-        return res.status(400).json('Invalid email or password');
-    }
-
-    const token = await createToken(user.username, user.email);
-
-    return res.status(200).json({ jwt: token, data: user });
 }
 
 export async function getProfile(req: Request, res: Response): Promise<any> {
     const { username } = req.params;
 
-    const user = await UserModel.findOne({ username });
-    if (!user) {
-        return res.status(404).json('User not found');
-    }
+    try {
+        const user = await UserModel.findOne({ username });
+        if (!user) {
+            return res.status(404).json('User not found');
+        }
 
-    return res.status(200).json({ data: user });
+        return res.status(200).json({ data: user });
+    } catch (err) {
+        console.log(err);
+    }
 }
 
 export async function updateProfile(req: Request, res: Response): Promise<any> {
     const { username } = req.params;
     const info = req.body;
 
-    const user = await UserModel.findOne({ username });
-    if (!user) {
-        return res.status(404).json('User not found');
-    }
+    try {
+        const user = await UserModel.findOne({ username });
+        if (!user) {
+            return res.status(404).json('User not found');
+        }
 
-    const validated = updateProfileValidator.validate({ username: info.username, name: info.name, email: info.email, avatar: info.avatar });
-    if (validated.error) {
-        return res.status(400).json(validated.error.details[0].message);
-    }
+        // validate request body
+        const validated = updateProfileValidator.validate({ username: info.username, name: info.name, email: info.email, avatar: info.avatar });
+        if (validated.error) {
+            return res.status(400).json(validated.error.details[0].message);
+        }
 
-    const existedUser = await UserModel.findOne({ username: info.username });
-    const existedEmail = await UserModel.findOne({ email: info.email });
-    if (existedUser) {
-        return res.status(400).json('This username is already in use');
-    }
-    if (existedEmail) {
-        return res.status(400).json('This email is already in use');
-    }
+        // check existed user and email
+        const existedUser = await UserModel.findOne({ username: info.username });
+        const existedEmail = await UserModel.findOne({ email: info.email });
+        if (existedUser) {
+            return res.status(400).json('This username is already in use');
+        }
+        if (existedEmail) {
+            return res.status(400).json('This email is already in use');
+        }
 
-    const updateInfo = {
-        username: info.username !== undefined ? info.username : user!.username,
-        name: info.name !== undefined ? info.name : user!.name,
-        email: info.email !== undefined ? info.email : user!.email,
-        avatar: info.avatar !== undefined ? info.avatar : user!.avatar,
-    }
+        const updateInfo = {
+            username: info.username !== undefined ? info.username : user!.username,
+            name: info.name !== undefined ? info.name : user!.name,
+            email: info.email !== undefined ? info.email : user!.email,
+            avatar: info.avatar !== undefined ? info.avatar : user!.avatar,
+        }
 
-    const updatedUser = await UserModel.findOneAndUpdate({ username: username }, updateInfo, { new: true });
-    if (!updatedUser) {
-        return res.status(404).json('Something went wrong');
-    }
+        const updatedUser = await UserModel.findOneAndUpdate({ username: username }, updateInfo, { new: true });
+        if (!updatedUser) {
+            return res.status(404).json('Something went wrong');
+        }
 
-    return res.status(200).json(updatedUser);
+        return res.status(200).json(updatedUser);
+    } catch (err) {
+        console.log(err);
+    }
 }
 
 export async function createPost() {

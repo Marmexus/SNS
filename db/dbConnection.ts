@@ -13,5 +13,3 @@ export const connection = mongoose
     .catch((err) => {
         console.log(err);
     });
-
-// export default connection;

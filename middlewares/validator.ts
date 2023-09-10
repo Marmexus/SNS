@@ -14,20 +14,3 @@ export const updateProfileValidator = Joi.object({
     email: Joi.string().email(),
     avatar: Joi.string().uri(),
 });
-
-export const registerInputValidate = (username: string, name: string, email: string, password: string, avatar?: string) => {
-    try {
-        const validated = registerValidator.validate({
-            username: username,
-            name: name,
-            email: email,
-            password: password,
-            avatar: avatar,
-        });
-        return validated;
-    } catch (err) {
-        console.log(err);
-    }
-}
-
-// export default registerInputValidate
