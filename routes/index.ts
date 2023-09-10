@@ -1,3 +1,2 @@
-import { userRouter } from './user';
-
-export default userRouter;
+export { userRouter } from './user';
+export { postRouter } from './post';

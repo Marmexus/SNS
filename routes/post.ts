@@ -2,6 +2,6 @@ import { Router } from 'express';
 import { createPost } from '../controllers'
 import { authorize } from '../middlewares';
 
-export const userRouter = Router();
+export const postRouter = Router();
 
-userRouter.post('/post', authorize, createPost);
+postRouter.post('/post', authorize, createPost);
