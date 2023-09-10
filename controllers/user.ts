@@ -1,4 +1,4 @@
-import { UserModel, PostModel } from '../models';
+import { UserModel, PostModel, ImageModel } from '../models';
 import { Request, Response } from 'express';
 import { registerValidator, createToken, updateProfileValidator, postValidator } from '../middlewares';
 import bcrypt from 'bcrypt';
@@ -38,11 +38,21 @@ export async function register(req: Request, res: Response): Promise<any> {
 
         const passwordEncrypted: string = await passwordEncrypt(info.password!);
 
+        let insertedAvatar
+        if (info.avatar !== undefined) {
+            const userAvatar = new ImageModel({
+                image: info.avatar
+            });
+
+            insertedAvatar = await userAvatar.save();
+        }
+
         const user = new UserModel({
             username: info.username,
             name: info.name,
             email: info.email,
-            password: passwordEncrypted
+            password: passwordEncrypted,
+            avatar: insertedAvatar !== undefined ? insertedAvatar._id : undefined
         })
 
         await user.save();
