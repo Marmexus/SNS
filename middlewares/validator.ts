@@ -8,11 +8,6 @@ export const registerValidator = Joi.object({
     avatar: Joi.string().uri(),
 });
 
-export const loginValidator = Joi.object({
-    email: Joi.string().email().required(),
-    password: Joi.string().alphanum().min(5).max(16).required(),
-});
-
 export const registerInputValidate = (username: string, name: string, email: string, password: string, avatar?: string) => {
     try {
         const validated = registerValidator.validate({

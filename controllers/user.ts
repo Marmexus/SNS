@@ -1,6 +1,6 @@
 import UserModel from '../models';
 import { Request, Response } from 'express';
-import { registerValidator, createToken, loginValidator } from '../middlewares';
+import { registerValidator, createToken } from '../middlewares';
 import bcrypt from 'bcrypt';
 
 function passwordEncrypt(password: string) {
@@ -48,7 +48,7 @@ export async function register(req: Request, res: Response): Promise<any> {
 
 export async function login(req: Request, res: Response): Promise<any> {
     const { email, password } = req.body;
-    
+
     const existedUser = await UserModel.find({ email });
     if (existedUser.length === 0) {
         return res.status(400).json('Invalid email or password');
