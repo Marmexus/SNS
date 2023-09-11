@@ -62,5 +62,23 @@ export async function userLikePost(req: Request, res: Response): Promise<any> {
 }
 
 export async function userUnlikePost(req: Request, res: Response): Promise<any> {
+    const auth = req.user;
+    const { postId } = req.params;
 
+    try {
+        const user = await UserModel.findOne({ username: auth.username });
+        const post = await PostModel.findOne({ _id: postId });
+        if (!post) {
+            return res.status(404).json('Something went wrong');
+        }
+
+        const updatePostLike = await UserLikePostModel.findOneAndUpdate({ postId: post._id },
+            {
+                $pull: { userLikeId: user?._id }
+            }, { new: true });
+
+        return res.status(200).json("Post unliked")
+    } catch (err) {
+        console.log(err);
+    }
 }
