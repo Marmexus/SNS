@@ -1,4 +1,4 @@
-import { UserModel, PostModel, ImageModel } from '../models';
+import { UserModel, PostModel, ImageModel, UserLikePostModel } from '../models';
 import { Request, Response } from 'express';
 import { postValidator } from '../middlewares';
 
@@ -37,4 +37,30 @@ export async function createPost(req: Request, res: Response): Promise<any> {
     } catch (err) {
         console.log(err);
     }
+}
+
+export async function userLikePost(req: Request, res: Response): Promise<any> {
+    const auth = req.user;
+    const { postId } = req.params;
+
+    try {
+        const user = await UserModel.findOne({ username: auth.username });
+        const post = await PostModel.findOne({ _id: postId });
+        if (!post) {
+            return res.status(404).json('Something went wrong');
+        }
+
+        const updatePostLike = await UserLikePostModel.findOneAndUpdate({ postId: post._id },
+            {
+                $push: { userLikeId: user?._id }
+            }, { upsert: true });
+
+        return res.status(200).json("Post liked")
+    } catch (err) {
+        console.log(err);
+    }
+}
+
+export async function userUnlikePost(req: Request, res: Response): Promise<any> {
+
 }
