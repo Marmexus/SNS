@@ -20,3 +20,9 @@ export const postValidator = Joi.object({
     content: Joi.string().min(3).max(1000).required(),
     image: Joi.string().uri(),
 });
+
+export const passwordValidator = Joi.object({
+    oldPassword: Joi.string().alphanum().min(5).max(16).required(),
+    newPassword: Joi.string().alphanum().min(5).max(16).required(),
+    confirmPassword: Joi.string().alphanum().min(5).max(16).required()
+});

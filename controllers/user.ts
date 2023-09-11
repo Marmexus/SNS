@@ -1,6 +1,6 @@
 import { UserModel, PostModel, ImageModel } from '../models';
 import { Request, Response } from 'express';
-import { registerValidator, createToken, updateProfileValidator } from '../middlewares';
+import { registerValidator, createToken, updateProfileValidator, passwordValidator } from '../middlewares';
 import bcrypt from 'bcrypt';
 
 function passwordEncrypt(password: string) {
@@ -143,6 +143,38 @@ export async function updateProfile(req: Request, res: Response): Promise<any> {
         }
 
         return res.status(200).json(updatedUser);
+    } catch (err) {
+        console.log(err);
+    }
+}
+
+export async function changePassword(req: Request, res: Response): Promise<any> {
+    const auth = req.user;
+    const { oldPassword, newPassword, confirmPassword } = req.body;
+
+    try {
+        const validated = passwordValidator.validate({ oldPassword: oldPassword, newPassword: newPassword, confirmPassword: confirmPassword });
+        if (validated.error) {
+            return res.status(400).json(validated.error.details[0].message);
+        }
+
+        const user = await UserModel.findOne({ username: auth.username });
+
+        // checking password mismatch or not
+        const isMisMatch: boolean = confirmPassword === newPassword;
+        if (!isMisMatch) {
+            return res.status(403).json("Password mismatch");
+        }
+        // if password match in database
+        const isMatch: boolean = await bcrypt.compareSync(oldPassword, user!.password);
+        if (!isMatch) {
+            return res.status(400).json('Invalid password');
+        }
+
+        const passwordEncrypted: string = await passwordEncrypt(newPassword);
+        const updateUserPassword = await UserModel.findOneAndUpdate({ username: user!.username }, { password: passwordEncrypted }, { new: true });
+
+        return res.status(200).json("Password updated");
     } catch (err) {
         console.log(err);
     }
