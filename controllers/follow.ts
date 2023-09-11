@@ -2,7 +2,7 @@ import { UserFollowerModel, UserFollowingModel, UserModel } from '../models';
 import { Request, Response } from 'express';
 import { registerValidator, createToken, updateProfileValidator } from '../middlewares';
 
-export async function followUser(req: Request, res: Response) {
+export async function followUser(req: Request, res: Response): Promise<any> {
     const auth = req.user;
     const { username } = req.params;
 

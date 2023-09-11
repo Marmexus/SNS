@@ -18,4 +18,5 @@ export const updateProfileValidator = Joi.object({
 export const postValidator = Joi.object({
     title: Joi.string().min(3).max(100).required(),
     content: Joi.string().min(3).max(1000).required(),
+    image: Joi.string().uri(),
 });
