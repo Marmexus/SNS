@@ -1,4 +1,4 @@
-import { UserModel, PostModel, ImageModel } from '../models';
+import { UserModel, PostModel, ImageModel, UserFollowerModel, UserFollowingModel } from '../models';
 import { Request, Response } from 'express';
 import { registerValidator, createToken, updateProfileValidator, passwordValidator } from '../middlewares';
 import bcrypt from 'bcrypt';
@@ -14,6 +14,17 @@ interface userInfo {
     email: string;
     password: string;
     avatar?: string;
+}
+
+interface Profile {
+    username: string;
+    name: string;
+    email: string;
+    avatar?: string;
+    meta: {
+        following: number;
+        follower: number;
+    };
 }
 
 export async function register(req: Request, res: Response): Promise<any> {
@@ -96,8 +107,22 @@ export async function getProfile(req: Request, res: Response): Promise<any> {
         if (!user) {
             return res.status(404).json('User not found');
         }
+        const avatar = await ImageModel.findOne({ _id: user.avatar });
+        const follower = await UserFollowerModel.findOne({ userId: user._id});
+        const following = await UserFollowingModel.findOne({ userId: user._id });
 
-        return res.status(200).json({ data: user });
+        const profile: Profile = {
+            username: user.username,
+            name: user.name,
+            email: user.email,
+            avatar: avatar?.image,
+            meta: {
+                follower: follower !== null ? follower?.followerId.length as number : 0,
+                following: following !== null ? following?.followingId.length as number : 0
+            }
+        }
+
+        return res.status(200).json({ data: profile });
     } catch (err) {
         console.log(err);
     }

@@ -1,6 +1,5 @@
 import { UserFollowerModel, UserFollowingModel, UserModel } from '../models';
 import { Request, Response } from 'express';
-import { registerValidator, createToken, updateProfileValidator } from '../middlewares';
 
 export async function followUser(req: Request, res: Response): Promise<any> {
     const auth = req.user;
@@ -15,19 +14,13 @@ export async function followUser(req: Request, res: Response): Promise<any> {
             });
         }
 
-        const updateFollowing = new UserFollowingModel({
-            userId: currentUser?._id,
-            followingId: userToFollow._id
-        });
+        const updateFollowing = await UserFollowingModel.findOneAndUpdate({ userId: currentUser?._id },
+            { followingId: userToFollow._id },
+            { upsert: true });
 
-        await updateFollowing.save();
-
-        const updateFollower = new UserFollowerModel({
-            userId: userToFollow._id,
-            followerId: currentUser?._id
-        });
-
-        await updateFollower.save();
+        const updateFollower = await UserFollowerModel.findOneAndUpdate({ userId: userToFollow._id },
+            { followerId: currentUser?._id }, { upsert: true });
+            
         return res.status(200).json({
             message: 'User followed',
         });
@@ -54,7 +47,9 @@ export async function unfollowUser(req: Request, res: Response): Promise<any> {
                 $pull: { followingId: userToUnfollow._id }
             }, { new: true });
 
-        const updateFollower = await UserFollowerModel.findOneAndUpdate({ userId: userToUnfollow._id }, { $pull: { followerId: currentUser?._id } }, { new: true });
+        const updateFollower = await UserFollowerModel.findOneAndUpdate({ userId: userToUnfollow._id },
+            { $pull: { followerId: currentUser?._id } }, { new: true });
+
         return res.status(200).json({
             message: 'User unfollowed',
         });
